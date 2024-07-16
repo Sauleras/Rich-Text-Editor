@@ -1,16 +1,17 @@
-let optionsButtons = document.querySelectorAll(".option-button");
-let advancedOptionButton = document.querySelectorAll(".adv-option-button");
-let fontName = document.getElementById("fontName");
-let fontSizeRef = document.getElementById("fontSize");
-let writingArea = document.getElementById("text-input");
-let linkButton = document.getElementById("createLink");
-let alignButtons = document.querySelectorAll(".align");
-let spacingButtons = document.querySelectorAll(".spacing");
-let formatButtons = document.querySelectorAll(".format");
-let scriptButtons = document.querySelectorAll(".script");
+// Seletores de elementos
+const optionsButtons = document.querySelectorAll(".option-button");
+const advancedOptionButtons = document.querySelectorAll(".adv-option-button");
+const fontName = document.getElementById("fontName");
+const fontSizeRef = document.getElementById("fontSize");
+const writingArea = document.getElementById("text-input");
+const linkButton = document.getElementById("createLink");
+const alignButtons = document.querySelectorAll(".align");
+const spacingButtons = document.querySelectorAll(".spacing");
+const formatButtons = document.querySelectorAll(".format");
+const scriptButtons = document.querySelectorAll(".script");
 
-//List of fontlist
-let fontList = [
+// Lista de fontes
+const fontList = [
   "Arial",
   "Verdana",
   "Times New Roman",
@@ -20,98 +21,87 @@ let fontList = [
   "cursive",
 ];
 
-//Initial Settings
+// Inicialização
 const initializer = () => {
-  //function calls for highlighting buttons
-  //No highlights for link, unlink,lists, undo,redo since they are one time operations
+  // Chama a função para destacar botões
   highlighter(alignButtons, true);
   highlighter(spacingButtons, true);
   highlighter(formatButtons, false);
   highlighter(scriptButtons, true);
 
-  //create options for font names
-  fontList.map((value) => {
-    let option = document.createElement("option");
-    option.value = value;
-    option.innerHTML = value;
+  // Cria opções para os nomes das fontes
+  fontList.forEach((font) => {
+    const option = document.createElement("option");
+    option.value = font;
+    option.textContent = font;
     fontName.appendChild(option);
   });
 
-  //fontSize allows only till 7
+  // Cria opções para o tamanho da fonte (1 a 7)
   for (let i = 1; i <= 7; i++) {
-    let option = document.createElement("option");
+    const option = document.createElement("option");
     option.value = i;
-    option.innerHTML = i;
+    option.textContent = i;
     fontSizeRef.appendChild(option);
   }
 
-  //default size
+  // Define o tamanho padrão da fonte
   fontSizeRef.value = 3;
 };
 
-//main logic
+// Função principal para modificar o texto
 const modifyText = (command, defaultUi, value) => {
-  //execCommand executes command on selected text
   document.execCommand(command, defaultUi, value);
 };
 
-//For basic operations which don't need value parameter
+// Para operações básicas que não necessitam de valor
 optionsButtons.forEach((button) => {
   button.addEventListener("click", () => {
     modifyText(button.id, false, null);
   });
 });
 
-//options that require value parameter (e.g colors, fonts)
-advancedOptionButton.forEach((button) => {
+// Para opções que requerem valor (ex: cores, fontes)
+advancedOptionButtons.forEach((button) => {
   button.addEventListener("change", () => {
     modifyText(button.id, false, button.value);
   });
 });
 
-//link
+// Adiciona link
 linkButton.addEventListener("click", () => {
   let userLink = prompt("Enter a URL");
-  //if link has http then pass directly else add https
-  if (/http/i.test(userLink)) {
-    modifyText(linkButton.id, false, userLink);
-  } else {
-    userLink = "http://" + userLink;
+  if (userLink) {
+    if (!/^https?:\/\//i.test(userLink)) {
+      userLink = "http://" + userLink;
+    }
     modifyText(linkButton.id, false, userLink);
   }
 });
 
-//Highlight clicked button
-const highlighter = (className, needsRemoval) => {
-  className.forEach((button) => {
+// Destacar botão clicado
+const highlighter = (buttons, needsRemoval) => {
+  buttons.forEach((button) => {
     button.addEventListener("click", () => {
-      //needsRemoval = true means only one button should be highlight and other would be normal
       if (needsRemoval) {
-        let alreadyActive = false;
-
-        //If currently clicked button is already active
-        if (button.classList.contains("active")) {
-          alreadyActive = true;
-        }
-
-        //Remove highlight from other buttons
-        highlighterRemover(className);
+        const alreadyActive = button.classList.contains("active");
+        highlighterRemover(buttons);
         if (!alreadyActive) {
-          //highlight clicked button
           button.classList.add("active");
         }
       } else {
-        //if other buttons can be highlighted
         button.classList.toggle("active");
       }
     });
   });
 };
 
-const highlighterRemover = (className) => {
-  className.forEach((button) => {
+// Remove destaque dos botões
+const highlighterRemover = (buttons) => {
+  buttons.forEach((button) => {
     button.classList.remove("active");
   });
 };
 
-window.onload = initializer();
+// Inicializa o editor quando a página carrega
+window.onload = initializer;
